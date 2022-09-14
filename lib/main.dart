@@ -12,6 +12,10 @@ import 'firebase_options.dart'; // new
 import 'src/authentication.dart'; // new
 import 'src/widgets.dart';
 
+import 'dart:async'; // new
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -58,6 +62,13 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 8),
           const IconAndDetail(Icons.calendar_today, 'October 30'),
           const IconAndDetail(Icons.location_city, 'San Francisco'),
+          const Header("What we'll be doing"),
+          const Paragraph(
+            'Join us for a day full of Firebase Workshops and Pizza!',
+          ),
+// Add the following two lines.
+          const Header('Discussion'),
+          GuestBook(addMessage: (message) => print(message)),
           // Add from here
           Consumer<ApplicationState>(
             builder: (context, appState, _) => Authentication(
@@ -175,5 +186,62 @@ class ApplicationState extends ChangeNotifier {
 
   void signOut() {
     FirebaseAuth.instance.signOut();
+  }
+}
+
+class GuestBook extends StatefulWidget {
+  const GuestBook({required this.addMessage});
+  final FutureOr<void> Function(String message) addMessage;
+
+  @override
+  _GuestBookState createState() => _GuestBookState();
+}
+
+class _GuestBookState extends State<GuestBook> {
+  final _formKey = GlobalKey<FormState>(debugLabel: '_GuestBookState');
+  final _controller = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Form(
+        key: _formKey,
+        child: Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  hintText: 'Leave a message',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Enter your message to continue';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            StyledButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  await widget.addMessage(_controller.text);
+                  _controller.clear();
+                }
+              },
+              child: Row(
+                children: const [
+                  Icon(Icons.send),
+                  SizedBox(width: 4),
+                  Text('SEND'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
