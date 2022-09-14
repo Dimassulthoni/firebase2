@@ -18,4 +18,4 @@ selanjutnya menampilkan pesan, Anda harus menambahkan listener yang memicu saat 
 ## Step 7
 penambahan rules pada database
 
-![Screenshot fb](images/fb4.jpeg)
+![Screenshot fb](images/fb4.png)
